@@ -634,24 +634,12 @@ dummy_func(
 
         op(_GUARD_NOS_INT, (left, unused -- left, unused)) {
             PyObject *left_o = PyStackRef_AsPyObjectBorrow(left);
-            EXIT_IF(!_PyLong_CheckExactAndCompact(left_o));
+            EXIT_IF(!PyLong_CheckExact(left_o));
         }
 
         op(_GUARD_TOS_INT, (value -- value)) {
             PyObject *value_o = PyStackRef_AsPyObjectBorrow(value);
-            EXIT_IF(!_PyLong_CheckExactAndCompact(value_o));
-        }
-
-        op(_GUARD_NOS_OVERFLOWED, (left, unused -- left, unused)) {
-            PyObject *left_o = PyStackRef_AsPyObjectBorrow(left);
-            assert(Py_TYPE(left_o) == &PyLong_Type);
-            EXIT_IF(!_PyLong_IsCompact((PyLongObject *)left_o));
-        }
-
-        op(_GUARD_TOS_OVERFLOWED, (value -- value)) {
-            PyObject *value_o = PyStackRef_AsPyObjectBorrow(value);
-            assert(Py_TYPE(value_o) == &PyLong_Type);
-            EXIT_IF(!_PyLong_IsCompact((PyLongObject *)value_o));
+            EXIT_IF(!PyLong_CheckExact(value_o));
         }
 
         pure op(_BINARY_OP_MULTIPLY_INT, (left, right -- res, l, r)) {
@@ -659,7 +647,6 @@ dummy_func(
             PyObject *right_o = PyStackRef_AsPyObjectBorrow(right);
             assert(PyLong_CheckExact(left_o));
             assert(PyLong_CheckExact(right_o));
-            assert(_PyLong_BothAreCompact((PyLongObject *)left_o, (PyLongObject *)right_o));
 
             STAT_INC(BINARY_OP, hit);
             res = _PyCompactLong_Multiply((PyLongObject *)left_o, (PyLongObject *)right_o);
@@ -667,6 +654,7 @@ dummy_func(
             l = left;
             r = right;
             INPUTS_DEAD();
+            ERROR_IF(PyStackRef_IsError(res));
         }
 
         pure op(_BINARY_OP_ADD_INT, (left, right -- res, l, r)) {
@@ -674,7 +662,6 @@ dummy_func(
             PyObject *right_o = PyStackRef_AsPyObjectBorrow(right);
             assert(PyLong_CheckExact(left_o));
             assert(PyLong_CheckExact(right_o));
-            assert(_PyLong_BothAreCompact((PyLongObject *)left_o, (PyLongObject *)right_o));
 
             STAT_INC(BINARY_OP, hit);
             res = _PyCompactLong_Add((PyLongObject *)left_o, (PyLongObject *)right_o);
@@ -682,6 +669,7 @@ dummy_func(
             l = left;
             r = right;
             INPUTS_DEAD();
+            ERROR_IF(PyStackRef_IsError(res));
         }
 
         pure op(_BINARY_OP_SUBTRACT_INT, (left, right -- res, l, r)) {
@@ -689,7 +677,6 @@ dummy_func(
             PyObject *right_o = PyStackRef_AsPyObjectBorrow(right);
             assert(PyLong_CheckExact(left_o));
             assert(PyLong_CheckExact(right_o));
-            assert(_PyLong_BothAreCompact((PyLongObject *)left_o, (PyLongObject *)right_o));
 
             STAT_INC(BINARY_OP, hit);
             res = _PyCompactLong_Subtract((PyLongObject *)left_o, (PyLongObject *)right_o);
@@ -697,6 +684,7 @@ dummy_func(
             l = left;
             r = right;
             INPUTS_DEAD();
+            ERROR_IF(PyStackRef_IsError(res));
         }
 
         macro(BINARY_OP_MULTIPLY_INT) =
@@ -708,7 +696,7 @@ dummy_func(
         macro(BINARY_OP_SUBTRACT_INT) =
             _GUARD_TOS_INT + _GUARD_NOS_INT + unused/5 + _BINARY_OP_SUBTRACT_INT + _POP_TOP_INT + _POP_TOP_INT;
 
-        // Inplace compact int ops: mutate the uniquely-referenced operand
+        // Inplace int ops: mutate the uniquely-referenced operand
         // when possible. The op handles decref of TARGET internally so
         // the following _POP_TOP_INT becomes _POP_TOP_NOP. Tier 2 only.
         tier2 op(_BINARY_OP_ADD_INT_INPLACE, (left, right -- res, l, r)) {
@@ -718,6 +706,7 @@ dummy_func(
             l = left;
             r = right;
             INPUTS_DEAD();
+            ERROR_IF(PyStackRef_IsError(_int_inplace_res));
         }
 
         tier2 op(_BINARY_OP_SUBTRACT_INT_INPLACE, (left, right -- res, l, r)) {
@@ -727,6 +716,7 @@ dummy_func(
             l = left;
             r = right;
             INPUTS_DEAD();
+            ERROR_IF(PyStackRef_IsError(_int_inplace_res));
         }
 
         tier2 op(_BINARY_OP_MULTIPLY_INT_INPLACE, (left, right -- res, l, r)) {
@@ -736,6 +726,7 @@ dummy_func(
             l = left;
             r = right;
             INPUTS_DEAD();
+            ERROR_IF(PyStackRef_IsError(_int_inplace_res));
         }
 
         tier2 op(_BINARY_OP_ADD_INT_INPLACE_RIGHT, (left, right -- res, l, r)) {
@@ -745,6 +736,7 @@ dummy_func(
             l = left;
             r = right;
             INPUTS_DEAD();
+            ERROR_IF(PyStackRef_IsError(_int_inplace_res));
         }
 
         tier2 op(_BINARY_OP_SUBTRACT_INT_INPLACE_RIGHT, (left, right -- res, l, r)) {
@@ -754,6 +746,7 @@ dummy_func(
             l = left;
             r = right;
             INPUTS_DEAD();
+            ERROR_IF(PyStackRef_IsError(_int_inplace_res));
         }
 
         tier2 op(_BINARY_OP_MULTIPLY_INT_INPLACE_RIGHT, (left, right -- res, l, r)) {
@@ -763,6 +756,7 @@ dummy_func(
             l = left;
             r = right;
             INPUTS_DEAD();
+            ERROR_IF(PyStackRef_IsError(_int_inplace_res));
         }
 
         op(_GUARD_NOS_FLOAT, (left, unused -- left, unused)) {
@@ -1141,6 +1135,7 @@ dummy_func(
 
             assert(PyLong_CheckExact(sub));
             assert(PyList_CheckExact(list));
+            EXIT_IF(!_PyLong_IsNonNegativeCompact((PyLongObject *)sub));
 
             Py_ssize_t index = _PyLong_CompactValue((PyLongObject *)sub);
             if (index < 0) {
@@ -1419,6 +1414,7 @@ dummy_func(
 
             assert(PyLong_CheckExact(sub));
             assert(PyList_CheckExact(list));
+            DEOPT_IF(!_PyLong_IsNonNegativeCompact((PyLongObject *)sub));
 
             Py_ssize_t index = _PyLong_CompactValue((PyLongObject *)sub);
             DEOPT_IF(!LOCK_OBJECT(list));
@@ -3314,14 +3310,13 @@ dummy_func(
             PyObject *left_o = PyStackRef_AsPyObjectBorrow(left);
             PyObject *right_o = PyStackRef_AsPyObjectBorrow(right);
 
-            assert(_PyLong_IsCompact((PyLongObject *)left_o));
-            assert(_PyLong_IsCompact((PyLongObject *)right_o));
             STAT_INC(COMPARE_OP, hit);
-            assert(_PyLong_DigitCount((PyLongObject *)left_o) <= 1 &&
-                   _PyLong_DigitCount((PyLongObject *)right_o) <= 1);
-            Py_ssize_t ileft = _PyLong_CompactValue((PyLongObject *)left_o);
-            Py_ssize_t iright = _PyLong_CompactValue((PyLongObject *)right_o);
+            int64_t ileft;
+            int64_t iright;
+            int ok = _PyLong_TryAsInt64Exact((PyLongObject *)left_o, &ileft)
+                  && _PyLong_TryAsInt64Exact((PyLongObject *)right_o, &iright);
             // 2 if <, 4 if >, 8 if ==; this matches the low 4 bits of the oparg
+            EXIT_IF(!ok);
             int sign_ish = COMPARISON_BIT(ileft, iright);
             l = left;
             r = right;
