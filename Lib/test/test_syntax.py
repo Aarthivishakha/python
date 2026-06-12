@@ -3508,7 +3508,7 @@ while 1:
     def test_triple_equal(self):
         self._check_error(
             "a === b",
-            "Maybe you meant '==' instead of '==='",
+            "Maybe you meant '==' instead of '==='?",
             lineno=1,
             end_lineno=1,
             offset=3,
@@ -3518,7 +3518,7 @@ while 1:
     def test_eq_lt_typo(self):
         self._check_error(
             "a =< b",
-            "Maybe you meant '<=' instead of '=<'",
+            "Maybe you meant '<=' instead of '=<'?",
             lineno=1,
             end_lineno=1,
             offset=3,
@@ -3528,7 +3528,7 @@ while 1:
     def test_eq_gt_typo(self):
         self._check_error(
             "a => b",
-            "Maybe you meant '>=' instead of '=>'",
+            "Maybe you meant '>=' instead of '=>'?",
             lineno=1,
             end_lineno=1,
             offset=3,
@@ -3538,7 +3538,7 @@ while 1:
     def test_eq_bang_typo(self):
         self._check_error(
             "a =! b",
-            "Maybe you meant '!=' instead of '=!'",
+            "Maybe you meant '!=' instead of '=!'?",
             lineno=1,
             end_lineno=1,
             offset=3,
