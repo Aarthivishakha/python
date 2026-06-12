@@ -16,6 +16,11 @@ Operating System Utilities
    :class:`str` or :class:`bytes` object. Otherwise :exc:`TypeError` is raised
    and ``NULL`` is returned.
 
+   .. note::
+
+      The caller must hold a :term:`strong reference` to *path* that
+      its :meth:`~os.PathLike.__fspath__` method cannot release.
+
    .. versionadded:: 3.6
 
 
