@@ -3505,6 +3505,16 @@ while 1:
         ]:
             self._check_error(f"x = {lhs_stmt} if 1 else {rhs_stmt}", msg)
 
+    def test_diamond_operator(self):
+        self._check_error(
+            "1 < > 2",
+            "Maybe you meant '!=' instead of '<>'?",
+            lineno=1,
+            end_lineno=1,
+            offset=3,
+            end_offset=6,
+        )
+
     def test_triple_equal(self):
         self._check_error(
             "a === b",
