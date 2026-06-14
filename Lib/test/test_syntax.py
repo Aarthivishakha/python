@@ -3517,7 +3517,7 @@ while 1:
 
     def test_diamond_operator_barry_as_flufl(self):
         self._check_error(
-           "from __future__ import barry_as_FLUFL\n1 < > 2",
+            "from __future__ import barry_as_FLUFL\n1 < > 2",
             "Maybe you meant '<>' instead of '< >'",
             lineno=2,
             end_lineno=2,
@@ -3528,7 +3528,7 @@ while 1:
     def test_triple_equal(self):
         self._check_error(
             "a === b",
-            "Maybe you meant 'is' instead of '==='?",
+            r"Maybe you meant 'is' instead of '==='\?",
             lineno=1,
             end_lineno=1,
             offset=3,
@@ -3538,7 +3538,7 @@ while 1:
     def test_eq_lt_typo(self):
         self._check_error(
             "a =< b",
-            "Maybe you meant '<=' instead of '=<'?",
+            r"Maybe you meant '<=' instead of '=<'\?",
             lineno=1,
             end_lineno=1,
             offset=3,
@@ -3548,7 +3548,7 @@ while 1:
     def test_eq_gt_typo(self):
         self._check_error(
             "a => b",
-            "Maybe you meant '>=' instead of '=>'?",
+            r"Maybe you meant '>=' instead of '=>'\?",
             lineno=1,
             end_lineno=1,
             offset=3,
@@ -3558,7 +3558,7 @@ while 1:
     def test_eq_bang_typo(self):
         self._check_error(
             "a =! b",
-            "Maybe you meant '!=' instead of '=!'?",
+            r"Maybe you meant '!=' instead of '=!'\?",
             lineno=1,
             end_lineno=1,
             offset=3,
