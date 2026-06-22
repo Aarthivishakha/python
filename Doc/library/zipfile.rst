@@ -584,7 +584,7 @@ ZipFile objects
    If *removed* is provided, it must be a sequence of :class:`ZipInfo` objects
    representing the recently removed members, and only their corresponding
    local file entries will be removed.  This is the most efficient and reliable
-   way to reclaim space.  For example::
+   way to reclaim space.  A brief example looks like::
 
       with ZipFile('spam.zip', 'a') as myzip:
           removed = [myzip.remove(name) for name in ('ham.txt', 'eggs.txt')]
@@ -593,22 +593,21 @@ ZipFile objects
    If *removed* is omitted, the archive is scanned to locate and remove local
    file entries that are no longer referenced in the central directory.
 
-   When scanning, *strict_descriptor* controls how entries written with an
-   unsigned *data descriptor* are handled.  A data descriptor is an optional
-   record stored after an entry's data, which can be either signed (beginning
-   with a magic signature) or unsigned, and is mandatory for an archive written
-   to a non-seekable stream.  Unsigned descriptors have been deprecated by the
+   When scanning, *strict_descriptor* controls how entries with an unsigned
+   data descriptor are handled.  A data descriptor is an optional record (but
+   mandatory for an archive written to a non-seekable stream) stored after an
+   entry's data, and can be either signed (beginning with a magic signature) or
+   unsigned.  Unsigned descriptors have been deprecated by the
    `PKZIP Application Note`_ since version 6.3.0 (released in 2006) and are
    rarely produced by modern tools.
 
    When *strict_descriptor* is true (the default), unsigned descriptors are
    not detectable, and unreferenced entries using them are not recognized and
    their space is not reclaimed.  Setting ``strict_descriptor=False`` allows
-   such unsigned descriptors and related entries to be recognized, at the cost
-   of a significantly slower scan—around 100 to 1000 times in the worst
-   case—which may be exploitable as a denial-of-service vector on untrusted
-   input.  Entries without a descriptor or with a signed descriptor are
-   unaffected.
+   such entries to be properly handled, at the cost of a significantly slower
+   scan—around 100 to 1000 times in the worst case—which may be exploitable
+   as a denial-of-service vector on untrusted input.  Entries without a
+   descriptor or with a signed descriptor are unaffected.
 
    *chunk_size* may be specified to control the buffer size when moving
    entry data (default is 1 MiB).
