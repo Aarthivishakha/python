@@ -594,12 +594,12 @@ ZipFile objects
    file entries that are no longer referenced in the central directory.
 
    When scanning, *strict_descriptor* controls how entries with an unsigned
-   data descriptor are handled.  A data descriptor is an optional record (but
-   mandatory for an archive written to a non-seekable stream) stored after an
-   entry's data, and can be either signed (beginning with a magic signature) or
-   unsigned.  Unsigned descriptors have been deprecated by the
-   `PKZIP Application Note`_ since version 6.3.0 (released in 2006) and are
-   rarely produced by modern tools.
+   data descriptor are handled.  A data descriptor is an optional record
+   (mostly used for non-seekable streaming) stored after an entry's data, and
+   can be either signed (beginning with a magic signature) or unsigned.
+   Unsigned descriptors have been deprecated by the `PKZIP Application Note`_
+   since version 6.3.0 (released in 2006) and are rarely produced by modern
+   tools.
 
    When *strict_descriptor* is true (the default), unsigned descriptors are
    not detectable, and unreferenced entries using them are not recognized and
