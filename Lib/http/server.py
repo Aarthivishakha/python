@@ -872,13 +872,13 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
         """
         try:
-            list = os.listdir(path)
+            with os.scandir(path) as it:
+                entries = sorted(it, key=lambda e: e.name.lower())
         except OSError:
             self.send_error(
                 HTTPStatus.NOT_FOUND,
                 "No permission to list directory")
             return None
-        list.sort(key=lambda a: a.lower())
         r = []
         displaypath = self.path
         displaypath = displaypath.split('#', 1)[0]
@@ -899,15 +899,24 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         r.append(f'<title>{title}</title>\n</head>')
         r.append(f'<body>\n<h1>{title}</h1>')
         r.append('<hr>\n<ul>')
-        for name in list:
-            fullname = os.path.join(path, name)
-            displayname = linkname = name
+        for entry in entries:
+            displayname = linkname = entry.name
+            # Ignore any OSError raised by the os.DirEntry methods
+            # to match the behavior of their os.path.* counterpart.
+            try:
+                is_dir = entry.is_dir()
+            except OSError:
+                is_dir = False
+            try:
+                is_symlink = entry.is_symlink()
+            except OSError:
+                is_symlink = False
             # Append / for directories or @ for symbolic links
-            if os.path.isdir(fullname):
-                displayname = name + "/"
-                linkname = name + "/"
-            if os.path.islink(fullname):
-                displayname = name + "@"
+            if is_dir:
+                displayname = entry.name + "/"
+                linkname = entry.name + "/"
+            if is_symlink:
+                displayname = entry.name + "@"
                 # Note: a link to a directory displays with @ and links with /
             r.append('<li><a href="%s">%s</a></li>'
                     % (urllib.parse.quote(linkname,
