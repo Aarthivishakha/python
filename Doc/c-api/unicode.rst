@@ -925,6 +925,13 @@ conversion function:
    If *obj* is ``NULL``, the function releases a strong reference
    stored in the variable referred by *result* and returns ``1``.
 
+   .. note::
+
+      If *obj* is not a :class:`str` or :class:`bytes` instance, the
+      conversion calls its :meth:`~os.PathLike.__fspath__` method.  The
+      caller must hold a :term:`strong reference` to *obj* that this
+      method cannot release.
+
    .. versionadded:: 3.1
 
    .. versionchanged:: 3.6
@@ -951,6 +958,13 @@ conversion function:
 
    If *obj* is ``NULL``, release the strong reference
    to the object referred to by *result* and return ``1``.
+
+   .. note::
+
+      If *obj* is not a :class:`str` or :class:`bytes` instance, the
+      conversion calls its :meth:`~os.PathLike.__fspath__` method.  The
+      caller must hold a :term:`strong reference` to *obj* that this
+      method cannot release.
 
    .. versionadded:: 3.2
 
