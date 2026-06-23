@@ -3753,7 +3753,7 @@ check_caller(compiler *c, expr_ty e)
     case Interpolation_kind: {
         location loc = LOC(e);
         return _PyCompile_Warn(c, loc, "'%.200s' object is not callable; "
-                                       "perhaps you missed a comma?",
+                                       "did you miss a comma to separate elements?",
                                        infer_type(e)->tp_name);
     }
     default:
@@ -3784,7 +3784,7 @@ check_subscripter(compiler *c, expr_ty e)
     case Lambda_kind: {
         location loc = LOC(e);
         return _PyCompile_Warn(c, loc, "'%.200s' object is not subscriptable; "
-                                       "perhaps you missed a comma?",
+                                        "did you miss a comma to separate elements?",
                                        infer_type(e)->tp_name);
     }
     default:
@@ -3819,7 +3819,7 @@ check_index(compiler *c, expr_ty e, expr_ty s)
         location loc = LOC(e);
         return _PyCompile_Warn(c, loc, "%.200s indices must be integers "
                                        "or slices, not %.200s; "
-                                       "perhaps you missed a comma?",
+                                       "did you miss a comma to separate elements?",
                                        infer_type(e)->tp_name,
                                        index_type->tp_name);
     }
